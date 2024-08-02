@@ -1,16 +1,5 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
-trigger:
-- master
-
-stages:
-- stage: Build 
-  displayName: 'Docker Build/Push Stage'
-  jobs:
+jobs:
   - job: BuildJob
-    
     steps:
       - task: Docker@2
         displayName: 'Docker Build'
@@ -31,17 +20,12 @@ stages:
           tags: |
             $(Build.BuildId)
 
-
-
-- stage: Deploy
-  displayName: 'Deploy to AKS'
-  dependsOn: Build
-  jobs:
   - job: DeployJob
+    dependsOn: BuildJob
     displayName: 'Deploy to AKS'
     variables:
       BUILD_ID: $(Build.BuildId)  # Pass the build ID as a variable
-      deploymentPath: 'manifests.yaml'
+      deploymentPath: '/manifests/dev/deployments.yaml'
     steps:
       - task: Bash@3
         displayName: 'Update Deployment Manifest with Build ID'
@@ -49,21 +33,6 @@ stages:
           targetType: 'inline'
           script: |
             sed -i 's/BUILD_ID_PLACEHOLDER/$(BUILD_ID)/g' $(deploymentPath)
-
-#      - task: KubernetesManifest@1
-#        displayName: 'Deploy to AKS using Canary Strategy'
-#        inputs:
-#          action: 'deploy'
-#          connectionType: 'kubernetesServiceConnection'
-#          kubernetesServiceConnection: 'AzureAKSSC-dev'
-#          azureResourceGroup: 'aks'
-#          kubernetesCluster: 'aks-demo-cluster'
-#          namespace: 'dev'
-#          strategy: 'canary'
-#          percentage: '50'
-#          manifests: $(deploymentPath)
-
-      
 
       - task: KubernetesManifest@1
         displayName: 'Deploy to AKS using Canary Strategy'
@@ -77,18 +46,5 @@ stages:
           namespace: 'dev'
           strategy: 'canary'
           percentage: '50'
-          manifests: '$(deploymentPath)'
+          manifests: '/manifests/dev/*.yaml'
       
-      - task: KubernetesManifest@1
-        displayName: 'Deploy to AKS using Canary Strategy'
-        inputs:
-          action: 'deploy'
-          connectionType: 'azureResourceManager'
-          azureSubscriptionConnection: 'AzureSC'
-          azureResourceGroup: 'aks'
-          kubernetesCluster: 'aks-prod'
-          useClusterAdmin: true
-          namespace: 'prod'
-          strategy: 'canary'
-          percentage: '50'
-          manifests: '$(deploymentPath)'
