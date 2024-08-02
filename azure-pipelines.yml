@@ -4,7 +4,6 @@ trigger:
       - dev
       - qa
 
-
 stages:
   - stage: BuildAndDeployDev
     displayName: Build and Deploy Dev
