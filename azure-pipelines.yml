@@ -3,7 +3,7 @@ trigger:
     include:
       - dev
       - qa
-      - main
+
 
 stages:
   - stage: BuildAndDeployDev
@@ -19,8 +19,3 @@ stages:
       - template: /azure-pipelines/azure-pipelines-qa.yml
 
   
-  - stage: BuildAndDeployProd
-    displayName: Build and Deploy Prod
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    jobs:
-      - template: /azure-pipelines/azure-pipelines-prod.yml
