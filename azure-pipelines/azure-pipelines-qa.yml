@@ -25,7 +25,7 @@ jobs:
     displayName: 'Deploy to AKS'
     variables:
       BUILD_ID: $(Build.BuildId)  # Pass the build ID as a variable
-      deploymentPath: '/manifests/dev/deployments.yaml'
+      deploymentPath: '/manifests/qa/deployments.yaml'
     steps:
       - task: Bash@3
         displayName: 'Update Deployment Manifest with Build ID'
@@ -43,8 +43,8 @@ jobs:
           azureResourceGroup: 'aks'
           kubernetesCluster: 'aks-demo-cluster'
           useClusterAdmin: true
-          namespace: 'dev'
+          namespace: 'qa'
           strategy: 'canary'
           percentage: '50'
-          manifests: '/manifests/dev/*.yaml'
+          manifests: '/manifests/qa/*.yaml'
       
